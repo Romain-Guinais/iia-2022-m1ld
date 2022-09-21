@@ -12,6 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 public class WelcomeServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		if (req.getSession().getAttribute("utilisateurSession") == null) {
+			resp.sendRedirect("login");
+			return;
+		}
+		
 		this.getServletContext()
 			.getRequestDispatcher("/WEB-INF/views/welcome.jsp")
 			.forward(req, resp);
