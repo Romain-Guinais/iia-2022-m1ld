@@ -1,12 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="ISO-8859-1">
-<title>Bienvenue ici</title>
-</head>
-<body>
-	<h1>Bonjour ${ utilisateurSession } !</h1>
-</body>
-</html>
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+
+<t:structure titre="Bonjour ${ utilisateurSession } !">
+	<p>TADAM</p>
+	
+	<c:forEach var="i" begin="0" end="7" step="1">
+		<p>${ i }</p>
+	</c:forEach>
+</t:structure>
