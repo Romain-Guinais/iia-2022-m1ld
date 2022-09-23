@@ -23,6 +23,7 @@ public class HomeController {
 	public String welcomeBinding(UtilisateurRequest utilisateurRequest) {
 		System.out.println(utilisateurRequest.getUsername());
 		System.out.println(utilisateurRequest.getId());
+		System.out.println(utilisateurRequest.getDemo().getDemo());
 		
 		return "welcome";
 	}
