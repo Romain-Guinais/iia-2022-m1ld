@@ -3,6 +3,7 @@ package fr.formation.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import fr.formation.request.UtilisateurRequest;
@@ -24,6 +25,13 @@ public class HomeController {
 		System.out.println(utilisateurRequest.getUsername());
 		System.out.println(utilisateurRequest.getId());
 		System.out.println(utilisateurRequest.getDemo().getDemo());
+		
+		return "welcome";
+	}
+	
+	@GetMapping("/welcome/{username}")
+	public String welcomePathVariable(@PathVariable String username, Model model) {
+		model.addAttribute("utilisateurSession", username);
 		
 		return "welcome";
 	}
