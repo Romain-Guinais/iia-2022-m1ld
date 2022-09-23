@@ -8,6 +8,7 @@
 <head>
 <meta charset="ISO-8859-1">
 <title>Se connecter</title>
+<link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
 	<c:if test="${ error == true }">
