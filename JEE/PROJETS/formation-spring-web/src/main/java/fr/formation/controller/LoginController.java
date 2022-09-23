@@ -3,6 +3,7 @@ package fr.formation.controller;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +18,12 @@ public class LoginController {
 	}
 	
 	@PostMapping
-	public String login(@RequestParam String username, HttpSession session) {
+	public String login(@RequestParam String username, HttpSession session, Model model) {
+		if (username.isBlank()) {
+			model.addAttribute("error", true);
+			return "login";
+		}
+		
 		session.setAttribute("utilisateurSession", username);
 		
 		return "redirect:/welcome";
