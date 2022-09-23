@@ -1,5 +1,7 @@
 package fr.formation.controller;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +14,10 @@ import fr.formation.request.UtilisateurRequest;
 public class HomeController {
 //	@RequestMapping(value = "/welcome", method = RequestMethod.GET)
 	@GetMapping("/welcome")
-	public String welcome(@RequestParam(required = false) String username, @RequestParam(required = false) Integer id, Model model) {
-		model.addAttribute("utilisateurSession", username);
-		System.out.println(id);
+	public String welcome(HttpSession session) {
+		if (session.getAttribute("utilisateurSession") == null) {
+			return "redirect:/login";
+		}
 		
 		return "welcome";
 //		return "/WEB-INF/views/welcome.jsp";
