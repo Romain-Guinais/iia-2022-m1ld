@@ -1,5 +1,6 @@
 package fr.formation.ordre4.spring.musique;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,12 @@ import org.springframework.stereotype.Component;
 public class Guitariste implements IMusicien {
 	private IInstrument instrument; // Dépendance
 	
-	public Guitariste(IInstrument instrument) {
+//	public Guitariste(IInstrument guitare) {
+//		System.out.println("CREATION GUITARISTE");
+//		this.instrument = guitare;
+//	}
+	
+	public Guitariste(@Qualifier("ukulele") IInstrument instrument) {
 		System.out.println("CREATION GUITARISTE");
 		this.instrument = instrument;
 	}

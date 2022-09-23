@@ -20,6 +20,9 @@ public class Application {
 		IMusicien guitariste2 = ctx.getBean("guitariste", IMusicien.class);
 		guitariste2.jouer();
 		
+		IMusicien pianiste = ctx.getBean("pianiste", IMusicien.class);
+		pianiste.jouer();
+		
 		if (guitariste == guitariste2) {
 			System.out.println("C PAREIL");
 		}
