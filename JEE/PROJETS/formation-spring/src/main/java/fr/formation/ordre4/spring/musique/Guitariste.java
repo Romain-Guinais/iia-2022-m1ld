@@ -1,12 +1,17 @@
 package fr.formation.ordre4.spring.musique;
 
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
+@Lazy // Tant qu'on a pas besoin de l'instance, SPRING ne l'instancie pas
+//@Scope("prototype") // Scope de la classe => durée de vie
 public class Guitariste implements IMusicien {
 	private IInstrument instrument; // Dépendance
 	
 	public Guitariste(IInstrument instrument) {
+		System.out.println("CREATION GUITARISTE");
 		this.instrument = instrument;
 	}
 	

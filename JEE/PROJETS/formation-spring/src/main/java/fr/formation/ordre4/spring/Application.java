@@ -17,6 +17,16 @@ public class Application {
 		IMusicien guitariste = ctx.getBean("guitariste", IMusicien.class);
 		guitariste.jouer();
 		
+		IMusicien guitariste2 = ctx.getBean("guitariste", IMusicien.class);
+		guitariste2.jouer();
+		
+		if (guitariste == guitariste2) {
+			System.out.println("C PAREIL");
+		}
+		
+		else {
+			System.out.println("C PAS PAREIL");
+		}
 		// On ferme de contexte de SPRING
 		ctx.close();
 	}
