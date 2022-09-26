@@ -1,9 +1,11 @@
 package fr.formation.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity // Classe d'entité
@@ -11,10 +13,16 @@ import javax.persistence.Table;
 public class Produit {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "pro_id")
 	private int id;
 	
+	@Column(name = "pro_nom", length = 100, nullable = false)
 	private String nom;
+	
+	@Column(name = "pro_prix", nullable = false)
 	private float prix;
+	
+	@ManyToOne
 	private Fournisseur fournisseur;
 
 	public int getId() {
