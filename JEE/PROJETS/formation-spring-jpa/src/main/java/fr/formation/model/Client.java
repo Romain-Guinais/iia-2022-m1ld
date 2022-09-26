@@ -1,10 +1,13 @@
 package fr.formation.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Client {
@@ -15,6 +18,9 @@ public class Client {
 
 	@Column(name = "cli_nom", length = 50, nullable = false)
 	private String nom;
+	
+	@OneToMany(mappedBy = "client")
+	private List<Commande> commandes;
 
 	public int getId() {
 		return id;
@@ -30,5 +36,13 @@ public class Client {
 
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+
+	public List<Commande> getCommandes() {
+		return commandes;
+	}
+
+	public void setCommandes(List<Commande> commandes) {
+		this.commandes = commandes;
 	}
 }
