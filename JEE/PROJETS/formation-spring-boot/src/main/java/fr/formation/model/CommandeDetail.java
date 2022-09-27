@@ -9,8 +9,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table(name = "achat")
+@Getter @Setter
 public class CommandeDetail {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,44 +34,4 @@ public class CommandeDetail {
 	@ManyToOne
 	@JoinColumn(name = "ach_produit_id", nullable = false)
 	private Produit produit;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public float getPrix() {
-		return prix;
-	}
-
-	public void setPrix(float prix) {
-		this.prix = prix;
-	}
-
-	public int getQuantite() {
-		return quantite;
-	}
-
-	public void setQuantite(int quantite) {
-		this.quantite = quantite;
-	}
-
-	public Commande getCommande() {
-		return commande;
-	}
-
-	public void setCommande(Commande commande) {
-		this.commande = commande;
-	}
-
-	public Produit getProduit() {
-		return produit;
-	}
-
-	public void setProduit(Produit produit) {
-		this.produit = produit;
-	}
 }

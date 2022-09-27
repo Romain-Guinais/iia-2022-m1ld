@@ -13,8 +13,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table(name = "commande")
+@Getter @Setter
 public class Commande {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,36 +34,4 @@ public class Commande {
 	
 	@OneToMany(mappedBy = "commande")
 	private List<CommandeDetail> details;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public LocalDateTime getDate() {
-		return date;
-	}
-
-	public void setDate(LocalDateTime date) {
-		this.date = date;
-	}
-
-	public Client getClient() {
-		return client;
-	}
-
-	public void setClient(Client client) {
-		this.client = client;
-	}
-
-	public List<CommandeDetail> getDetails() {
-		return details;
-	}
-
-	public void setDetails(List<CommandeDetail> details) {
-		this.details = details;
-	}
 }

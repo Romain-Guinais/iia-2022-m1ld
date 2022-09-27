@@ -17,6 +17,8 @@ import fr.formation.request.FournisseurRequest;
 @Controller
 @RequestMapping("/fournisseur")
 public class FournisseurController {
+    private static final String REDIRECT_LIST = "redirect:/fournisseur";
+
 	@Autowired
 	private IFournisseurRepository repoFournisseur;
 	
@@ -40,7 +42,7 @@ public class FournisseurController {
 		
 		this.repoFournisseur.save(fournisseur);
 
-		return "redirect:/fournisseur";
+		return REDIRECT_LIST;
 	}
 	
 	@GetMapping("/modifier")
@@ -52,7 +54,7 @@ public class FournisseurController {
 			return "fournisseur/edit";
 		}
 		
-		return "redirect:/fournisseur";
+		return REDIRECT_LIST;
 	}
 	
 	@PostMapping("/modifier")
@@ -64,13 +66,13 @@ public class FournisseurController {
 			this.repoFournisseur.save(optFournisseur.get());
 		}
 		
-		return "redirect:/fournisseur";
+		return REDIRECT_LIST;
 	}
 	
 	@GetMapping("/supprimer")
 	public String deleteById(@RequestParam int id) {
 		this.repoFournisseur.deleteById(id);
 		
-		return "redirect:/fournisseur";
+		return REDIRECT_LIST;
 	}
 }

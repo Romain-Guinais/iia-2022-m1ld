@@ -10,8 +10,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 @Entity // Classe d'entité
 @Table(name = "[produit]") // Les [] pour envelopper le nom de la table, et éviter les pb liés aux mot-clés par exemple
+@Getter @Setter
+@NoArgsConstructor
 public class Produit {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,40 +33,6 @@ public class Produit {
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "pro_fournisseur_id", nullable = false)
 	private Fournisseur fournisseur;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public String getNom() {
-		return nom;
-	}
-
-	public void setNom(String nom) {
-		this.nom = nom;
-	}
-
-	public float getPrix() {
-		return prix;
-	}
-
-	public void setPrix(float prix) {
-		this.prix = prix;
-	}
-
-	public Fournisseur getFournisseur() {
-		return fournisseur;
-	}
-
-	public void setFournisseur(Fournisseur fournisseur) {
-		this.fournisseur = fournisseur;
-	}
-
-	public Produit() { }
 
 	public Produit(String nom) {
 		this.nom = nom;
