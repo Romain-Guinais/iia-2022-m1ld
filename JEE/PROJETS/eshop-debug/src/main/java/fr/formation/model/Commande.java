@@ -11,6 +11,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -36,7 +37,7 @@ public class Commande {
     private EtatCommande etat;
 
     @ManyToOne
-    @Column(name = "cmd_client_id", nullable = false)
+    @JoinColumn(name = "cmd_client_id", nullable = false)
     private Client client;
 
     @OneToMany(mappedBy = "commande", cascade = CascadeType.PERSIST)

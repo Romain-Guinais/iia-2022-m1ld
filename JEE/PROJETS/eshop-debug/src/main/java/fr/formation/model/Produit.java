@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -15,11 +16,12 @@ import lombok.Setter;
 @Table(name = "produit")
 @Getter @Setter
 public class Produit {
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pro_id")
     private int id;
     
-    @Column(name = "pro_lib", length = 100, nullable = false)
+    @Column(name = "pro_nom", length = 100, nullable = false)
     private String nom;
     
     @Column(name = "pro_prix", nullable = false)

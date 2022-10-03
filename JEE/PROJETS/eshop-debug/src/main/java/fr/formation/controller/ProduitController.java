@@ -1,6 +1,7 @@
 package fr.formation.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -12,16 +13,21 @@ import fr.formation.request.ProduitRequest;
 import fr.formation.service.FournisseurService;
 import fr.formation.service.ProduitService;
 
+@Controller
 @RequestMapping("/produit")
 public class ProduitController {
     private static final String REDIRECT_URL = "redirect:/produit";
 
     @Autowired
     private ProduitService srvProduit;
+
+    @Autowired
     private FournisseurService srvFournisseur;
 
     @GetMapping
-    public String findAll() {
+    public String findAll(Model model) {
+        model.addAttribute("produits", this.srvProduit.findAll());
+
         return "produit/list";
     }
 
@@ -35,7 +41,7 @@ public class ProduitController {
     @GetMapping("/modifier")
     public String edit(@RequestParam int id, Model model) {
         model.addAttribute("produit", this.srvProduit.findById(id));
-        model.addAttribute("fournisseur", this.srvFournisseur.findAll());
+        model.addAttribute("fournisseurs", this.srvFournisseur.findAll());
 
         return "produit/edit";
     }

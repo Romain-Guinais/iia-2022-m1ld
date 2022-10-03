@@ -1,5 +1,6 @@
 package fr.formation.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +17,8 @@ import fr.formation.service.FournisseurService;
 public class FournisseurController {
     private static final String REDIRECT_URL = "redirect:/fournisseur";
 
-    private FournisseurService srvFournisseur = new FournisseurService();
+    @Autowired
+    private FournisseurService srvFournisseur;
 
     @GetMapping
     public String findAll(Model model) {
@@ -37,7 +39,7 @@ public class FournisseurController {
         return "fournisseur/edit";
     }
 
-    @GetMapping("/ajouter")
+    @GetMapping("/modifier")
     public String edit(@RequestParam int id, Model model) {
         model.addAttribute("fournisseur", this.srvFournisseur.findById(id));
 
@@ -48,10 +50,10 @@ public class FournisseurController {
     public String save(FournisseurRequest fournisseurRequest) {
         this.srvFournisseur.save(fournisseurRequest);
 
-        return "redirect:/";
+        return REDIRECT_URL;
     }
 
-    @GetMapping("/supprime")
+    @GetMapping("/supprimer")
     public String deleteById(@RequestParam int id) {
         this.srvFournisseur.deleteById(id);
 

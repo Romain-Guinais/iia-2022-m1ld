@@ -47,7 +47,7 @@ public class ProduitRepositoryTest {
 	
 	@Test
 	public void testFindByPrixBetween() {
-		List<Produit> produits = this.repoProduit.findByPriceBetween(50, 250);
+		List<Produit> produits = this.repoProduit.findByPrixBetween(50, 250);
 
 		Assertions.assertNotNull(produits);
 		Assertions.assertEquals(2, produits.size());
