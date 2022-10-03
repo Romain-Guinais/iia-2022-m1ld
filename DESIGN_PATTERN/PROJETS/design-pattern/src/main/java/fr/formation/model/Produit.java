@@ -1,5 +1,6 @@
 package fr.formation.model;
 
+import fr.formation.composite.Composant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +8,7 @@ import lombok.ToString;
 
 @Getter @Setter
 @ToString
-public class Produit {
+public class Produit implements Composant {
     private int id;
     private String nom;
     private float prixAchat;
