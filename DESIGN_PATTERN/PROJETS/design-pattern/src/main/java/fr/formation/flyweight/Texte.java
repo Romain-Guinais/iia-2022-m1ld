@@ -8,7 +8,7 @@ public class Texte {
     private List<Caractere> caracteres = new ArrayList<>();
 
     public void ajouter(Character codeClavier, int couleur, int taille, int police) {
-        this.caracteres.add(new Caractere(codeClavier, attributFlyweight.getAttributCaractereN(couleur, taille, police)));
+        this.caracteres.add(new Caractere(codeClavier, attributFlyweight.getAttributCaractere(couleur, taille, police)));
     }
 
     public void imprimer() {
