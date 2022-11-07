@@ -86,6 +86,12 @@ public class ProduitApiController {
 
     @DeleteMapping("/{id}")
     public boolean deleteById(@PathVariable int id) {
-        return this.srvProduit.deleteById(id);
+        CommentaireResponse[] commentaires = this.restTemplate.getForObject("http://localhost:5156/by-produit/" + id, CommentaireResponse[].class);
+        
+        if (commentaires != null && commentaires.length == 0) {
+            return this.srvProduit.deleteById(id);
+        }
+
+        return false;
     }
 }
