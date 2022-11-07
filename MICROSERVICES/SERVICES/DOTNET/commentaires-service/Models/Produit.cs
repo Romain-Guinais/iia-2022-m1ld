@@ -15,7 +15,7 @@ public class Produit
     public string Nom { get; set; } = "";
 
     [Column("pro_prix")]
-    public Double prix { get; set; }
+    public Double Prix { get; set; }
 
     [Column("pro_notable")]
     public Boolean Notable { get; set; }

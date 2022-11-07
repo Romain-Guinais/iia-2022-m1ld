@@ -5,10 +5,10 @@ namespace commentaires_service.Startup;
 
 public static class DbContextStartup
 {
-    public static IServiceCollection UseDbContextConfiguration(this IServiceCollection services, ConfigurationManager configManager)
+    public static IServiceCollection UseDbContextConfiguration(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<CommentaireContext>(options =>
-            options.UseNpgsql(configManager.GetConnectionString("CommentaireContext"))
+            options.UseNpgsql(connectionString)
         );
 
 

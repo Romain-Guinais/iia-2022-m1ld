@@ -6,7 +6,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.UseDbContextConfiguration(builder.Configuration);
+builder.Services.UseDbContextConfiguration(builder.Configuration.GetConnectionString("CommentaireContext"));
 
 var app = builder.Build();
 
