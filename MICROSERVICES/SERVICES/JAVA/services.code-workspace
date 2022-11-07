@@ -1,0 +1,10 @@
+{
+	"folders": [
+		{
+			"path": "produits-service"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "interactive"
+	}
+}
