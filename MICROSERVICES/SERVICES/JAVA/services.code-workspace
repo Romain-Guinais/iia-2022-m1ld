@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "produits-service"
+		},
+		{
+			"path": "discovery-server"
 		}
 	],
 	"settings": {

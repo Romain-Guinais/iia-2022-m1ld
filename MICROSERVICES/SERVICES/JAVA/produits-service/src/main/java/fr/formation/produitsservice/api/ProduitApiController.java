@@ -34,7 +34,7 @@ public class ProduitApiController {
             .findAll()
             .stream()
             .map(p -> {
-                Integer note = this.restTemplate.getForObject("http://localhost:5156/note/" + p.getId(), Integer.class);
+                Integer note = this.restTemplate.getForObject("lb://commentaires-service/note/" + p.getId(), Integer.class);
                 
                 return ProduitResponse.builder()
                     .id(p.getId())
@@ -49,8 +49,8 @@ public class ProduitApiController {
     @GetMapping("/{id}")
     public ProduitDetailsResponse findById(@PathVariable int id) {
         Produit produit = this.srvProduit.findById(id);
-        CommentaireResponse[] commentaires = this.restTemplate.getForObject("http://localhost:5156/by-produit/" + id, CommentaireResponse[].class);
-        Integer note = this.restTemplate.getForObject("http://localhost:5156/note/" + id, Integer.class);
+        CommentaireResponse[] commentaires = this.restTemplate.getForObject("lb://commentaires-service/by-produit/" + id, CommentaireResponse[].class);
+        Integer note = this.restTemplate.getForObject("lb://commentaires-service/note/" + id, Integer.class);
         
         return ProduitDetailsResponse.builder()
             .id(produit.getId())
@@ -86,7 +86,7 @@ public class ProduitApiController {
 
     @DeleteMapping("/{id}")
     public boolean deleteById(@PathVariable int id) {
-        CommentaireResponse[] commentaires = this.restTemplate.getForObject("http://localhost:5156/by-produit/" + id, CommentaireResponse[].class);
+        CommentaireResponse[] commentaires = this.restTemplate.getForObject("lb://commentaires-service/by-produit/" + id, CommentaireResponse[].class);
         
         if (commentaires != null && commentaires.length == 0) {
             return this.srvProduit.deleteById(id);
