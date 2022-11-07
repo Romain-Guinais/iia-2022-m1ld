@@ -2,7 +2,6 @@ using commentaires_service.Context;
 using commentaires_service.Controllers.Request;
 using commentaires_service.Controllers.Response;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace commentaires_service.Controllers;
 
@@ -12,36 +11,70 @@ public class CommentaireApiController : ControllerBase
 {
     private readonly ILogger<CommentaireApiController> _logger;
     private readonly CommentaireContext _commentaireContext;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly HttpClient _httpClient;
 
     public CommentaireApiController(ILogger<CommentaireApiController> logger,
-                                    CommentaireContext commentaireContext)
+                                    CommentaireContext commentaireContext,
+                                    IHttpClientFactory httpClientFactory)
     {
         _logger = logger;
         _commentaireContext = commentaireContext;
+        _httpClientFactory = httpClientFactory;
+        _httpClient = httpClientFactory.CreateClient("produits-service");
     }
 
     [HttpGet("{id}")]
-    public CommentaireResponse FindById([FromRoute] int id)
+    public async Task<CommentaireResponse> FindById([FromRoute] int id)
     {
-        Commentaire commentaire = this._commentaireContext.Commentaires
-            .Include(c => c.Produit)
-            .First(c => c.Id == id);
+        Commentaire commentaire = this._commentaireContext.Commentaires.First(c => c.Id == id);
+        string produitNom = await _httpClient.GetStringAsync($"/info/{ commentaire.ProduitId }/nom");
 
         return new CommentaireResponse
         {
             Id = commentaire.Id,
             Texte = commentaire.Texte,
-            Note = commentaire.Note,
-            ProduitNom = commentaire.Produit.Nom
+            Note = (commentaire.NoteQualite + commentaire.NoteRapport + commentaire.NoteFacilite) / 3,
+            ProduitNom = produitNom
         };
     }
 
-    [HttpPost]
-    public IActionResult Add(CommentaireRequest commentaireRequest)
+    [HttpGet("note/{produitId}")]
+    public int NoteByProduitId([FromRoute] int produitId)
     {
-        Produit produit = this._commentaireContext.Produits.First(p => p.Id == commentaireRequest.ProduitId);
-        
-        if (!produit.Notable)
+         double produitNoteAverage = this._commentaireContext.Commentaires
+            .Where(c => c.ProduitId == produitId)
+            .ToList()
+            .DefaultIfEmpty(new Commentaire())
+            .Average(c => (c.NoteQualite + c.NoteRapport + c.NoteFacilite) / 3);
+
+        return (int)Math.Floor(produitNoteAverage);
+    }
+
+    [HttpGet("by-produit/{produitId}")]
+    public List<CommentaireResponse> FindAllByProduitId([FromRoute] int produitId)
+    {
+        List<Commentaire> commentaires = this._commentaireContext.Commentaires.Where(c => c.ProduitId == produitId).ToList();
+        List<CommentaireResponse> response = new List<CommentaireResponse>();
+
+        foreach (Commentaire commentaire in commentaires) {
+            response.Add(new CommentaireResponse
+            {
+                Id = commentaire.Id,
+                Texte = commentaire.Texte,
+                Note =  (commentaire.NoteQualite + commentaire.NoteRapport + commentaire.NoteFacilite) / 3
+            });
+        }
+
+        return response;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Add(CommentaireRequest commentaireRequest)
+    {
+        Boolean notable = await _httpClient.GetFromJsonAsync<Boolean>($"/info/{ commentaireRequest.ProduitId }/notable");
+
+        if (!notable)
         {
             return StatusCode(StatusCodes.Status400BadRequest);
         }
@@ -49,8 +82,10 @@ public class CommentaireApiController : ControllerBase
         Commentaire commentaire = new Commentaire
         {
             Texte = commentaireRequest.Texte,
-            Note = this.validateNote(commentaireRequest.Note),
-            Produit = produit
+            NoteQualite = this.validateNote(commentaireRequest.NoteQualite),
+            NoteRapport = this.validateNote(commentaireRequest.NoteRapport),
+            NoteFacilite = this.validateNote(commentaireRequest.NoteFacilite),
+            ProduitId = commentaireRequest.ProduitId
         };
 
         this._commentaireContext.Commentaires.Add(commentaire);
@@ -60,24 +95,26 @@ public class CommentaireApiController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Edit([FromRoute] int id, CommentaireRequest commentaireRequest)
+    public async Task<IActionResult> Edit([FromRoute] int id, CommentaireRequest commentaireRequest)
     {
         Commentaire commentaire = this._commentaireContext.Commentaires.First(c => c.Id == id);
-        Produit produit = this._commentaireContext.Produits.First(p => p.Id == commentaireRequest.ProduitId);
+        Boolean notable = await _httpClient.GetFromJsonAsync<Boolean>($"/info/{ commentaireRequest.ProduitId }/notable");
 
         if (commentaire == null)
         {
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
-        if (!produit.Notable)
+        if (!notable)
         {
             return StatusCode(StatusCodes.Status400BadRequest);
         }
 
         commentaire.Texte = commentaireRequest.Texte;
-        commentaire.Note = this.validateNote(commentaireRequest.Note);
-        commentaire.Produit = produit;
+        commentaire.NoteQualite = this.validateNote(commentaireRequest.NoteQualite);
+        commentaire.NoteRapport = this.validateNote(commentaireRequest.NoteRapport);
+        commentaire.NoteFacilite = this.validateNote(commentaireRequest.NoteFacilite);
+        commentaire.ProduitId = commentaireRequest.ProduitId;
 
         this._commentaireContext.SaveChanges();
 

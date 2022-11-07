@@ -7,6 +7,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.UseDbContextConfiguration(builder.Configuration.GetConnectionString("CommentaireContext"));
+builder.Services.UseHttpConfiguration("produits-service", "http://172.26.48.1:8080");
 
 var app = builder.Build();
 

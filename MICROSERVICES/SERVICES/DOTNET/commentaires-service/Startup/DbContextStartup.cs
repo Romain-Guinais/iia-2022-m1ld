@@ -11,7 +11,6 @@ public static class DbContextStartup
             options.UseNpgsql(connectionString)
         );
 
-
         return services;
     }
 }

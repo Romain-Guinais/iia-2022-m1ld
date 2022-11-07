@@ -14,9 +14,15 @@ public class Commentaire
     [Column("com_texte")]
     public string Texte { get; set; } = "";
 
-    [Column("com_note")]
-    public int Note { get; set; }
+    [Column("com_note_qualite")]
+    public int NoteQualite { get; set; }
 
-    [ForeignKey("com_produit_id")]
-    public virtual Produit? Produit { get; set; }
+    [Column("com_note_rapport")]
+    public int NoteRapport { get; set; }
+
+    [Column("com_note_facilite")]
+    public int NoteFacilite { get; set; }
+
+    [Column("com_produit_id")]
+    public int ProduitId { get; set; }
 }
