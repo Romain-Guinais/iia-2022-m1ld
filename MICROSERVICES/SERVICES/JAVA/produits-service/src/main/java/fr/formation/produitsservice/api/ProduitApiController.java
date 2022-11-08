@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +20,10 @@ import fr.formation.produitsservice.api.request.ProduitRequest;
 import fr.formation.produitsservice.api.response.CommentaireResponse;
 import fr.formation.produitsservice.api.response.ProduitDetailsResponse;
 import fr.formation.produitsservice.api.response.ProduitResponse;
+import fr.formation.produitsservice.messaging.ProduitDeletionCommand;
 import fr.formation.produitsservice.model.Produit;
 import fr.formation.produitsservice.service.ProduitService;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +31,7 @@ public class ProduitApiController {
     private final ProduitService srvProduit;
     private final RestTemplate restTemplate;
     private final CircuitBreakerFactory circuitBreakerFactory;
+    private final StreamBridge streamBridge;
 
     @GetMapping
     public List<ProduitResponse> findAll() {
@@ -102,18 +103,9 @@ public class ProduitApiController {
     }
 
     @DeleteMapping("/{id}")
-    @CircuitBreaker(name = "deleteById", fallbackMethod = "fallbackDeleteById")
-    public Mono<Boolean> deleteById(@PathVariable int id) {
-        CommentaireResponse[] commentaires = this.restTemplate.getForObject("lb://commentaires-service/by-produit/" + id, CommentaireResponse[].class);
+    public Boolean deleteById(@PathVariable int id) {
+        this.streamBridge.send("produit-deletion-out-0", ProduitDeletionCommand.builder().produitId(id).build());
         
-        if (commentaires != null && commentaires.length == 0) {
-            return Mono.just(this.srvProduit.deleteById(id));
-        }
-
-        return Mono.just(false);
-    }
-
-    public Mono<Boolean> fallbackDeleteById(int id, Exception e) {
-        return Mono.just(false);
+        return true;
     }
 }
