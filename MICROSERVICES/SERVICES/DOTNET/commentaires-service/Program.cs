@@ -9,6 +9,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.UseDbContextConfiguration(builder.Configuration.GetConnectionString("CommentaireContext"));
 builder.Services.UseEurekaConfiguration();
 builder.Services.UseHttpConfiguration("produits-service", "lb://produits-service");
+builder.Services.UseRabbitConfiguration(builder.Configuration);
 
 var app = builder.Build();
 
