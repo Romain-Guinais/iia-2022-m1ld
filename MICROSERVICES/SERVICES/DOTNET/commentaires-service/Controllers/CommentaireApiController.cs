@@ -2,6 +2,7 @@ using commentaires_service.Context;
 using commentaires_service.Controllers.Request;
 using commentaires_service.Controllers.Response;
 using Microsoft.AspNetCore.Mvc;
+using Polly;
 
 namespace commentaires_service.Controllers;
 
@@ -28,7 +29,16 @@ public class CommentaireApiController : ControllerBase
     public async Task<CommentaireResponse> FindById([FromRoute] int id)
     {
         Commentaire commentaire = this._commentaireContext.Commentaires.First(c => c.Id == id);
-        string produitNom = await _httpClient.GetStringAsync($"/info/{ commentaire.ProduitId }/nom");
+
+        var fallbackForAnyException = Policy<string>
+            .Handle<Exception>()
+            .FallbackAsync(async (ct) => "- Inconnu -");
+        
+        // string produitNom = await _httpClient.GetStringAsync($"/info/{ commentaire.ProduitId }/nom");
+        
+        string produitNom = await fallbackForAnyException.ExecuteAsync(async () => {
+            return await _httpClient.GetStringAsync($"/info/{ commentaire.ProduitId }/nom");
+        });
 
         return new CommentaireResponse
         {
@@ -72,7 +82,7 @@ public class CommentaireApiController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add(CommentaireRequest commentaireRequest)
     {
-        Boolean notable = await _httpClient.GetFromJsonAsync<Boolean>($"/info/{ commentaireRequest.ProduitId }/notable");
+        Boolean notable = await this.isNotable(commentaireRequest.ProduitId);
 
         if (!notable)
         {
@@ -98,7 +108,7 @@ public class CommentaireApiController : ControllerBase
     public async Task<IActionResult> Edit([FromRoute] int id, CommentaireRequest commentaireRequest)
     {
         Commentaire commentaire = this._commentaireContext.Commentaires.First(c => c.Id == id);
-        Boolean notable = await _httpClient.GetFromJsonAsync<Boolean>($"/info/{ commentaireRequest.ProduitId }/notable");
+        Boolean notable = await this.isNotable(commentaireRequest.ProduitId);
 
         if (commentaire == null)
         {
@@ -136,6 +146,18 @@ public class CommentaireApiController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
+    }
+
+    private async Task<Boolean> isNotable(int produitId) {
+        var fallbackForAnyException = Policy<Boolean>
+            .Handle<Exception>()
+            .FallbackAsync(async (ct) => false);
+        
+        // return await _httpClient.GetFromJsonAsync<Boolean>($"/info/{ commentaireRequest.ProduitId }/notable");
+        
+        return await fallbackForAnyException.ExecuteAsync(async () => {
+            return await _httpClient.GetFromJsonAsync<Boolean>($"/info/{ produitId }/notable");
+        });
     }
 
     private int validateNote(int note) {

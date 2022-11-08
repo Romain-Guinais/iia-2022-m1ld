@@ -18,3 +18,6 @@ dotnet ef migrations add InitialCreate
 
 # Client Eureka
 dotnet add package Steeltoe.Discovery.Eureka
+
+# Circuit Breaker
+dotnet add package Microsoft.Extensions.Http.Polly
