@@ -27,6 +27,18 @@ public static class RabbitMqStartup
             binding.RoutingKey = "produit.deletion.askfor"; // On écoute les demandes de suppression
         });
 
+        // Configuration de la queue "produit détaillé" pour le service commentaire
+        services.AddRabbitQueue("ms.produit.detailed.commentaire");
+
+        // Liaison de cette queue à l'Exchange ms.produit
+        services.AddRabbitBinding("produitDetailed", Binding.DestinationType.QUEUE, (p, b) => {
+            var binding = b as QueueBinding;
+
+            binding.Exchange = "ms.produit";
+            binding.Destination = "ms.produit.detailed.commentaire";
+            binding.RoutingKey = "produit.detailed";
+        });
+
         // Configuration du service qui captera les évènements reçus
         services.AddSingleton<ProduitEventHandler>();
         services.AddRabbitListeners<ProduitEventHandler>();

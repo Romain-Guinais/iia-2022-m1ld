@@ -1,8 +1,12 @@
 using commentaires_service.Context;
 using commentaires_service.Controllers.Request;
 using commentaires_service.Controllers.Response;
+using commentaires_service.Messaging;
+using commentaires_service.Models;
+using commentaires_service.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Polly;
+using Steeltoe.Messaging.RabbitMQ.Core;
 
 namespace commentaires_service.Controllers;
 
@@ -14,15 +18,18 @@ public class CommentaireApiController : ControllerBase
     private readonly CommentaireContext _commentaireContext;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly HttpClient _httpClient;
+    private readonly RabbitTemplate _rabbitTemplate;
 
     public CommentaireApiController(ILogger<CommentaireApiController> logger,
                                     CommentaireContext commentaireContext,
-                                    IHttpClientFactory httpClientFactory)
+                                    IHttpClientFactory httpClientFactory,
+                                    RabbitTemplate rabbitTemplate)
     {
         _logger = logger;
         _commentaireContext = commentaireContext;
         _httpClientFactory = httpClientFactory;
         _httpClient = httpClientFactory.CreateClient("produits-service");
+        _rabbitTemplate = rabbitTemplate;
     }
 
     [HttpGet("{id}")]
@@ -64,7 +71,7 @@ public class CommentaireApiController : ControllerBase
     [HttpGet("by-produit/{produitId}")]
     public List<CommentaireResponse> FindAllByProduitId([FromRoute] int produitId)
     {
-        List<Commentaire> commentaires = this._commentaireContext.Commentaires.Where(c => c.ProduitId == produitId).ToList();
+        List<Commentaire> commentaires = this._commentaireContext.Commentaires.Where(c => c.ProduitId == produitId && c.Etat == CommentaireEtat.OK).ToList();
         List<CommentaireResponse> response = new List<CommentaireResponse>();
 
         foreach (Commentaire commentaire in commentaires) {
@@ -82,24 +89,24 @@ public class CommentaireApiController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add(CommentaireRequest commentaireRequest)
     {
-        Boolean notable = await this.isNotable(commentaireRequest.ProduitId);
-
-        if (!notable)
-        {
-            return StatusCode(StatusCodes.Status400BadRequest);
-        }
-
         Commentaire commentaire = new Commentaire
         {
             Texte = commentaireRequest.Texte,
             NoteQualite = this.validateNote(commentaireRequest.NoteQualite),
             NoteRapport = this.validateNote(commentaireRequest.NoteRapport),
             NoteFacilite = this.validateNote(commentaireRequest.NoteFacilite),
-            ProduitId = commentaireRequest.ProduitId
+            ProduitId = commentaireRequest.ProduitId,
+            Etat = CommentaireEtat.PENDING
         };
 
         this._commentaireContext.Commentaires.Add(commentaire);
         this._commentaireContext.SaveChanges();
+
+        _rabbitTemplate.ConvertAndSend("ms.produit", "produit.details", new ProduitDetailsCommand
+        {
+            CommentaireId = commentaire.Id,
+            ProduitId = commentaireRequest.ProduitId
+        });
 
         return Ok(commentaire.Id);
     }
@@ -108,23 +115,16 @@ public class CommentaireApiController : ControllerBase
     public async Task<IActionResult> Edit([FromRoute] int id, CommentaireRequest commentaireRequest)
     {
         Commentaire commentaire = this._commentaireContext.Commentaires.First(c => c.Id == id);
-        Boolean notable = await this.isNotable(commentaireRequest.ProduitId);
 
         if (commentaire == null)
         {
             return StatusCode(StatusCodes.Status404NotFound);
         }
 
-        if (!notable)
-        {
-            return StatusCode(StatusCodes.Status400BadRequest);
-        }
-
         commentaire.Texte = commentaireRequest.Texte;
         commentaire.NoteQualite = this.validateNote(commentaireRequest.NoteQualite);
         commentaire.NoteRapport = this.validateNote(commentaireRequest.NoteRapport);
         commentaire.NoteFacilite = this.validateNote(commentaireRequest.NoteFacilite);
-        commentaire.ProduitId = commentaireRequest.ProduitId;
 
         this._commentaireContext.SaveChanges();
 

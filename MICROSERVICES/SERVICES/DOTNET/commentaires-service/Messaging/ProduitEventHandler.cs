@@ -1,4 +1,6 @@
 using commentaires_service.Context;
+using commentaires_service.Models;
+using commentaires_service.Models.Enums;
 using Steeltoe.Messaging.RabbitMQ.Attributes;
 using Steeltoe.Messaging.RabbitMQ.Core;
 using Steeltoe.Messaging.RabbitMQ.Extensions;
@@ -37,6 +39,28 @@ public class ProduitEventHandler
                     ProduitId = evt.ProduitId
                 });
             }
+        }
+    }
+
+    [RabbitListener(Binding = "produitDetailed")]
+    public void on(ProduitDetailedEvent evt)
+    {
+        RabbitTemplate rabbitTemplate = _services.GetRabbitTemplate();
+
+        using (var scope = _services.CreateScope())
+        {
+            var commentaireContext = scope.ServiceProvider.GetService<CommentaireContext>();
+            Commentaire commentaire = commentaireContext.Commentaires.First(c => c.Id == evt.CommentaireId);
+
+            if (evt.Notable) {
+                commentaire.Etat = CommentaireEtat.OK;
+            }
+
+            else {
+                commentaireContext.Commentaires.Remove(commentaire);
+            }
+
+            commentaireContext.SaveChanges();
         }
     }
 }

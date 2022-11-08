@@ -1,4 +1,4 @@
-using commentaires_service.Controllers;
+using commentaires_service.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace commentaires_service.Context;

@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using commentaires_service.Models.Enums;
 
-namespace commentaires_service.Controllers;
+namespace commentaires_service.Models;
 
 
 [Table("commentaire")]
@@ -22,6 +23,9 @@ public class Commentaire
 
     [Column("com_note_facilite")]
     public int NoteFacilite { get; set; }
+
+    [Column("com_etat")]
+    public CommentaireEtat Etat { get; set; }
 
     [Column("com_produit_id")]
     public int ProduitId { get; set; }
