@@ -5,6 +5,10 @@
 		},
 		{
 			"path": "discovery-server"
+		},
+		{
+			"name": "query-service",
+			"path": "query-service"
 		}
 	],
 	"settings": {
