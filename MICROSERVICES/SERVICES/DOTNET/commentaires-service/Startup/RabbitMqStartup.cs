@@ -15,6 +15,9 @@ public static class RabbitMqStartup
         services.AddRabbitAdmin();
         services.AddRabbitTemplate();
 
+        // Configuration de l'Exchange du service
+        services.AddRabbitExchange("ms.commentaire", ExchangeType.TOPIC);
+
         // Configuration de la queue "produit en suppression" pour le service commentaire
         services.AddRabbitQueue("ms.produit.deletion.commentaire");
 

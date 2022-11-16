@@ -61,6 +61,18 @@ public class ProduitEventHandler
             }
 
             commentaireContext.SaveChanges();
+
+            if (evt.Notable) {
+                rabbitTemplate.ConvertAndSend("ms.commentaire", "commentaire.created", new CommentaireCreatedCommand
+                {
+                    CommentaireId = evt.CommentaireId,
+                    Texte = commentaire.Texte,
+                    NoteQualite = commentaire.NoteQualite,
+                    NoteRapport = commentaire.NoteRapport,
+                    NoteFacilite = commentaire.NoteFacilite,
+                    ProduitId = evt.ProduitId
+                });
+            }
         }
     }
 }

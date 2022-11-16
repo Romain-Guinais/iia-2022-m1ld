@@ -1,6 +1,5 @@
 using commentaires_service.Context;
 using commentaires_service.Controllers.Request;
-using commentaires_service.Controllers.Response;
 using commentaires_service.Messaging;
 using commentaires_service.Models;
 using commentaires_service.Models.Enums;
@@ -16,78 +15,19 @@ public class CommentaireApiController : ControllerBase
 {
     private readonly ILogger<CommentaireApiController> _logger;
     private readonly CommentaireContext _commentaireContext;
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly HttpClient _httpClient;
     private readonly RabbitTemplate _rabbitTemplate;
 
     public CommentaireApiController(ILogger<CommentaireApiController> logger,
                                     CommentaireContext commentaireContext,
-                                    IHttpClientFactory httpClientFactory,
                                     RabbitTemplate rabbitTemplate)
     {
         _logger = logger;
         _commentaireContext = commentaireContext;
-        _httpClientFactory = httpClientFactory;
-        _httpClient = httpClientFactory.CreateClient("produits-service");
         _rabbitTemplate = rabbitTemplate;
     }
 
-    [HttpGet("{id}")]
-    public async Task<CommentaireResponse> FindById([FromRoute] int id)
-    {
-        Commentaire commentaire = this._commentaireContext.Commentaires.First(c => c.Id == id);
-
-        var fallbackForAnyException = Policy<string>
-            .Handle<Exception>()
-            .FallbackAsync(async (ct) => "- Inconnu -");
-        
-        // string produitNom = await _httpClient.GetStringAsync($"/info/{ commentaire.ProduitId }/nom");
-        
-        string produitNom = await fallbackForAnyException.ExecuteAsync(async () => {
-            return await _httpClient.GetStringAsync($"/info/{ commentaire.ProduitId }/nom");
-        });
-
-        return new CommentaireResponse
-        {
-            Id = commentaire.Id,
-            Texte = commentaire.Texte,
-            Note = (commentaire.NoteQualite + commentaire.NoteRapport + commentaire.NoteFacilite) / 3,
-            ProduitNom = produitNom
-        };
-    }
-
-    [HttpGet("note/{produitId}")]
-    public int NoteByProduitId([FromRoute] int produitId)
-    {
-         double produitNoteAverage = this._commentaireContext.Commentaires
-            .Where(c => c.ProduitId == produitId)
-            .ToList()
-            .DefaultIfEmpty(new Commentaire())
-            .Average(c => (c.NoteQualite + c.NoteRapport + c.NoteFacilite) / 3);
-
-        return (int)Math.Floor(produitNoteAverage);
-    }
-
-    [HttpGet("by-produit/{produitId}")]
-    public List<CommentaireResponse> FindAllByProduitId([FromRoute] int produitId)
-    {
-        List<Commentaire> commentaires = this._commentaireContext.Commentaires.Where(c => c.ProduitId == produitId && c.Etat == CommentaireEtat.OK).ToList();
-        List<CommentaireResponse> response = new List<CommentaireResponse>();
-
-        foreach (Commentaire commentaire in commentaires) {
-            response.Add(new CommentaireResponse
-            {
-                Id = commentaire.Id,
-                Texte = commentaire.Texte,
-                Note =  (commentaire.NoteQualite + commentaire.NoteRapport + commentaire.NoteFacilite) / 3
-            });
-        }
-
-        return response;
-    }
-
     [HttpPost]
-    public async Task<IActionResult> Add(CommentaireRequest commentaireRequest)
+    public IActionResult Add(CommentaireRequest commentaireRequest)
     {
         Commentaire commentaire = new Commentaire
         {
@@ -112,7 +52,7 @@ public class CommentaireApiController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Edit([FromRoute] int id, CommentaireRequest commentaireRequest)
+    public IActionResult Edit([FromRoute] int id, CommentaireRequest commentaireRequest)
     {
         Commentaire commentaire = this._commentaireContext.Commentaires.First(c => c.Id == id);
 
@@ -146,18 +86,6 @@ public class CommentaireApiController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
-    }
-
-    private async Task<Boolean> isNotable(int produitId) {
-        var fallbackForAnyException = Policy<Boolean>
-            .Handle<Exception>()
-            .FallbackAsync(async (ct) => false);
-        
-        // return await _httpClient.GetFromJsonAsync<Boolean>($"/info/{ commentaireRequest.ProduitId }/notable");
-        
-        return await fallbackForAnyException.ExecuteAsync(async () => {
-            return await _httpClient.GetFromJsonAsync<Boolean>($"/info/{ produitId }/notable");
-        });
     }
 
     private int validateNote(int note) {
